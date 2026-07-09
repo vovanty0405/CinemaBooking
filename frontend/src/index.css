@@ -1,0 +1,43 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --gradient-hero: linear-gradient(180deg, rgba(20,20,20,0) 0%, #141414 100%);
+  --gradient-cta: linear-gradient(90deg, #E50914 0%, #B20710 100%);
+  --gradient-premium: linear-gradient(135deg, #8B5CF6 0%, #E50914 100%);
+  --gradient-glow: radial-gradient(circle, rgba(229,9,20,0.35) 0%, rgba(0,0,0,0) 70%);
+}
+
+@layer base {
+  body {
+    @apply bg-dark-bg text-text-primary font-sans antialiased;
+  }
+}
+
+/* Seat map custom colors (as variables or classes) */
+.seat-available {
+  @apply bg-dark-input hover:border-brand-red border border-transparent cursor-pointer;
+}
+
+.seat-selected {
+  @apply bg-brand-red text-white border border-brand-red;
+}
+
+.seat-booked {
+  @apply bg-text-muted cursor-not-allowed opacity-50;
+}
+
+.seat-held {
+  @apply bg-accent-orange cursor-not-allowed opacity-80;
+}
+
+.seat-vip-available {
+  @apply bg-dark-input border border-accent-purple hover:border-brand-red cursor-pointer;
+  border-image: var(--gradient-premium) 1;
+}
+
+.seat-vip-selected {
+  background: var(--gradient-premium);
+  @apply text-white border-none;
+}

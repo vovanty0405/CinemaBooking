@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Socket.IO Test</title>
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <style>
+    body { font-family: monospace; padding: 20px; background: #111; color: #eee; }
+    #log { background: #222; padding: 12px; border-radius: 8px; height: 400px; overflow-y: auto; }
+    .event { margin: 4px 0; }
+    .event.locked { color: #f0a500; }
+    .event.booked { color: #e24b4b; }
+    .event.available { color: #1d9e75; }
+    .event.info { color: #888; }
+    input, button { padding: 8px 12px; margin: 4px; border-radius: 6px; border: none; }
+    button { background: #534ab7; color: white; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <h2>Socket.IO Seat Map Tester</h2>
+  <div>
+    <input id="token" placeholder="Access token (optional)" style="width:300px">
+    <input id="showtimeId" placeholder="Showtime ID" style="width:220px">
+    <button onclick="connect()">Connect</button>
+    <button onclick="joinRoom()">Join Room</button>
+    <button onclick="leaveRoom()">Leave Room</button>
+  </div>
+  <div id="log"></div>
+
+  <script>
+    let socket = null
+
+    function log(msg, type = 'info') {
+      const div = document.createElement('div')
+      div.className = `event ${type}`
+      div.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`
+      document.getElementById('log').prepend(div)
+    }
+
+    function connect() {
+      const token = document.getElementById('token').value
+      if (socket) socket.disconnect()
+
+      socket = io('http://localhost:3000', {
+        auth: token ? { token } : {},
+      })
+
+      socket.on('connect', () => log(`Connected: ${socket.id}`))
+      socket.on('disconnect', (r) => log(`Disconnected: ${r}`))
+
+      // Nhận sơ đồ ghế đầy đủ khi join room
+      socket.on('seat_map_updated', ({ showtimeId, seats }) => {
+        const summary = seats.reduce((acc, s) => {
+          acc[s.status] = (acc[s.status] || 0) + 1
+          return acc
+        }, {})
+        log(`seat_map_updated | showtime: ${showtimeId} | ${JSON.stringify(summary)}`, 'info')
+      })
+
+      // Nhận update realtime khi ghế thay đổi
+      socket.on('seats_status_changed', ({ seats }) => {
+        seats.forEach(s => {
+          log(`seat_changed | ${s.row}${s.number} → ${s.status}`, s.status)
+        })
+      })
+
+      socket.on('error', (e) => log(`Error: ${e.message}`, 'booked'))
+    }
+
+    function joinRoom() {
+      const id = document.getElementById('showtimeId').value
+      if (!socket || !id) return log('Connect và nhập showtimeId trước')
+      socket.emit('join_showtime', id)
+      log(`Joined showtime room: ${id}`)
+    }
+
+    function leaveRoom() {
+      const id = document.getElementById('showtimeId').value
+      if (!socket || !id) return
+      socket.emit('leave_showtime', id)
+      log(`Left showtime room: ${id}`)
+    }
+  </script>
+</body>
+</html>

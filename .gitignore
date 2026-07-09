@@ -1,0 +1,15 @@
+# Ignore environment variables
+.env
+backend/.env
+frontend/.env
+
+# Ignore node_modules and builds (general backup)
+node_modules/
+dist/
+build/
+
+# Ignore local markdown files in root
+/*.md
+
+# Ignore the stitch admin dashboard folder
+/stitch_cinebooking_admin_dashboard/

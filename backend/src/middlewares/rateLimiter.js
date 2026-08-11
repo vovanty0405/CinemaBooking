@@ -30,7 +30,7 @@ let apiLimiter
 
 const initLimiters = () => {
   loginLimiter = createLimiter('rl:login:', 5, 15 * 60 * 1000, 'Too many login attempts, please try again after 15 minutes')
-  apiLimiter = createLimiter('rl:api:', 100, 15 * 60 * 1000, 'Too many requests')
+  apiLimiter = createLimiter('rl:api:', 2000, 15 * 60 * 1000, 'Too many requests')
 }
 
 // Gọi sau khi app khởi động xong

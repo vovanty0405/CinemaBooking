@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { moviesApi } from '../api/movies';
 import { promotionsApi } from '../api/promotions';
+import { eventsApi } from '../api/events';
 import { MovieCard } from '../components/features/MovieCard';
+import { EventCard } from '../components/features/EventCard';
 import { Button } from '../components/ui/Button';
 import { Play, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -56,6 +58,12 @@ export const HomePage: React.FC = () => {
     queryFn: () => promotionsApi.getCombos({ isFeaturedOnHome: true, status: 'active' }),
   });
   const combos = combosRes?.data?.data || [];
+
+  const { data: eventsRes } = useQuery({
+    queryKey: ['publicEvents'],
+    queryFn: () => eventsApi.getPublicEvents({ limit: 4 }),
+  });
+  const events = eventsRes?.data?.data || [];
 
   const [isPaused, setIsPaused] = useState(false);
 
@@ -349,6 +357,52 @@ export const HomePage: React.FC = () => {
                 </div>
               </div>
             </>
+          )}
+        </section>
+
+        {/* 5. Sự kiện và Khuyến mãi (Mới) */}
+        <section className="pb-16 relative">
+          <div className="flex items-end justify-between mb-8">
+            <div>
+              <h2 className="text-3xl font-bold text-white mb-2 relative inline-block">
+                Sự Kiện & Tin Tức
+                <span className="absolute -bottom-2 left-0 w-1/2 h-1 bg-brand-red rounded-full"></span>
+              </h2>
+            </div>
+            <div className="flex items-center gap-4">
+              <Link to="/events" className="text-brand-red hover:text-white transition-colors text-sm font-medium hidden sm:block">
+                Xem tất cả &rarr;
+              </Link>
+            </div>
+          </div>
+
+          {events.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {events.map((event: any) => (
+                <div key={event._id} className="h-full">
+                  <EventCard event={event} />
+                </div>
+              ))}
+            </div>
+          ) : (
+            /* Fallback UI when no events exist */
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 opacity-50">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="group block rounded-xl overflow-hidden bg-[#1F1F1F] border border-[#2B2B2B] h-full flex flex-col pointer-events-none">
+                  <div className="relative aspect-video overflow-hidden bg-[#2B2B2B] flex items-center justify-center">
+                    <span className="text-text-muted text-sm">Chưa có ảnh</span>
+                  </div>
+                  <div className="p-4 flex flex-col flex-1">
+                    <div className="h-3 w-1/3 bg-[#2B2B2B] rounded mb-3"></div>
+                    <div className="h-5 w-3/4 bg-[#2B2B2B] rounded mb-2"></div>
+                    <div className="h-5 w-1/2 bg-[#2B2B2B] rounded mb-4"></div>
+                    <div className="h-10 w-full bg-[#141414] rounded mt-auto border border-[#2B2B2B] border-dashed flex items-center justify-center">
+                      <span className="text-text-muted text-xs">Vào Admin để thêm Sự kiện</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           )}
         </section>
       </div>

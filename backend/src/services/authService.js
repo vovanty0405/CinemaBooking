@@ -143,6 +143,27 @@ const changePasswordWithOtp = async (userId, otp, newPassword) => {
   await RefreshToken.updateMany({ user: user._id }, { isRevoked: true })
 }
 
+const requestChangePasswordOtp = async (userId, oldPassword) => {
+  const user = await User.findById(userId).select('+password')
+  if (!user) {
+    throw Object.assign(new Error('User not found'), { statusCode: 404 })
+  }
+
+  const isMatch = await user.comparePassword(oldPassword)
+  if (!isMatch) {
+    throw Object.assign(new Error('Mật khẩu cũ không chính xác'), { statusCode: 400 })
+  }
+
+  // Generate 6 digit OTP
+  const otp = Math.floor(100000 + Math.random() * 900000).toString()
+  user.resetPasswordOtp = otp
+  user.resetPasswordExpires = Date.now() + 5 * 60 * 1000
+  await user.save()
+
+  // Gửi email
+  await emailService.sendOtpEmail(user.email, otp)
+}
+
 const updateProfile = async (userId, { name, phone }) => {
   const user = await User.findByIdAndUpdate(
     userId,
@@ -155,4 +176,4 @@ const updateProfile = async (userId, { name, phone }) => {
   return { id: user._id, name: user.name, email: user.email, role: user.role, phone: user.phone }
 }
 
-module.exports = { register, login, refresh, logout, forgotPassword, verifyOtp, resetPassword, changePasswordWithOtp, updateProfile }
+module.exports = { register, login, refresh, logout, forgotPassword, verifyOtp, resetPassword, changePasswordWithOtp, updateProfile, requestChangePasswordOtp }

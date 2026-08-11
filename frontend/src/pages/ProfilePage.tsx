@@ -30,8 +30,11 @@ export const ProfilePage: React.FC = () => {
   const [selectedBooking, setSelectedBooking] = useState<any>(null);
 
   // Mật khẩu State
+  const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showOtpModal, setShowOtpModal] = useState(false);
+  const [otp, setOtp] = useState('');
 
   // Queries
   const { data: historyRes, isLoading } = useQuery({
@@ -45,15 +48,29 @@ export const ProfilePage: React.FC = () => {
     : (historyRes?.data?.data?.bookings || historyRes?.data?.data?.items || []);
 
   // Mutations cho Đổi mật khẩu
+  const requestOtpMutation = useMutation({
+    mutationFn: () => authApi.requestChangePasswordOtp({ oldPassword }),
+    onSuccess: () => {
+      addToast('Mã OTP đã được gửi đến email của bạn', 'success');
+      setShowOtpModal(true);
+    },
+    onError: (err: any) => {
+      addToast(err.response?.data?.message || 'Có lỗi xảy ra khi gửi yêu cầu', 'error');
+    }
+  });
+
   const changePasswordMutation = useMutation({
-    mutationFn: () => authApi.changePassword({ newPassword }),
+    mutationFn: () => authApi.changePassword({ otp, newPassword }),
     onSuccess: () => {
       addToast('Cập nhật mật khẩu thành công!', 'success');
+      setOldPassword('');
       setNewPassword('');
       setConfirmPassword('');
+      setOtp('');
+      setShowOtpModal(false);
       setActiveTab('info');
     },
-    onError: () => addToast('Có lỗi xảy ra khi đổi mật khẩu!', 'error')
+    onError: (err: any) => addToast(err.response?.data?.message || 'Có lỗi xảy ra khi đổi mật khẩu!', 'error')
   });
 
   const updateProfileMutation = useMutation({
@@ -86,12 +103,24 @@ export const ProfilePage: React.FC = () => {
 
   const handleChangePassword = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!oldPassword) {
+      addToast('Vui lòng nhập mật khẩu cũ!', 'warning');
+      return;
+    }
     if (!newPassword || newPassword !== confirmPassword) {
-      addToast('Mật khẩu không khớp hoặc bị trống!', 'warning');
+      addToast('Mật khẩu mới không khớp hoặc bị trống!', 'warning');
       return;
     }
     if (newPassword.length < 6) {
-      addToast('Mật khẩu phải dài hơn 6 ký tự!', 'warning');
+      addToast('Mật khẩu mới phải dài hơn 6 ký tự!', 'warning');
+      return;
+    }
+    requestOtpMutation.mutate();
+  };
+
+  const handleConfirmOtp = () => {
+    if (!otp || otp.length !== 6) {
+      addToast('Vui lòng nhập đúng 6 số OTP', 'warning');
       return;
     }
     changePasswordMutation.mutate();
@@ -238,6 +267,13 @@ export const ProfilePage: React.FC = () => {
               <form className="space-y-4 max-w-md" onSubmit={handleChangePassword}>
                 <Input 
                   type="password" 
+                  label="Mật khẩu cũ" 
+                  value={oldPassword}
+                  onChange={(e) => setOldPassword(e.target.value)}
+                  required
+                />
+                <Input 
+                  type="password" 
                   label="Mật khẩu mới" 
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
@@ -252,10 +288,10 @@ export const ProfilePage: React.FC = () => {
                 />
                 <Button 
                   className="mt-4 w-full" 
-                  loading={changePasswordMutation.isPending}
-                  disabled={changePasswordMutation.isPending}
+                  loading={requestOtpMutation.isPending}
+                  disabled={requestOtpMutation.isPending}
                 >
-                  Cập nhật mật khẩu
+                  Đổi mật khẩu
                 </Button>
               </form>
             </div>
@@ -303,6 +339,29 @@ export const ProfilePage: React.FC = () => {
             } as any} />
           </div>
         )}
+      </Modal>
+
+      {/* OTP Verification Modal */}
+      <Modal
+        isOpen={showOtpModal}
+        onClose={() => setShowOtpModal(false)}
+        title="Xác thực thay đổi mật khẩu"
+        size="sm"
+      >
+        <div className="mt-4 space-y-4">
+          <p className="text-sm text-text-muted">Mã OTP gồm 6 chữ số đã được gửi đến email của bạn. Vui lòng kiểm tra và nhập vào bên dưới để xác nhận.</p>
+          <Input 
+            type="text" 
+            placeholder="Nhập mã OTP (6 số)" 
+            value={otp}
+            onChange={(e) => setOtp(e.target.value)}
+            maxLength={6}
+          />
+          <div className="flex gap-3 justify-end mt-6">
+            <Button variant="ghost" onClick={() => setShowOtpModal(false)}>Hủy</Button>
+            <Button onClick={handleConfirmOtp} loading={changePasswordMutation.isPending} disabled={changePasswordMutation.isPending}>Xác nhận OTP</Button>
+          </div>
+        </div>
       </Modal>
     </div>
   );

@@ -126,8 +126,11 @@ const resetPassword = async (req, res, next) => {
 
 const requestChangePasswordOtp = async (req, res, next) => {
   try {
-    // req.user được gán từ authMiddleware
-    await authService.forgotPassword(req.user.email) // Dùng chung hàm sinh OTP
+    const { oldPassword } = req.body
+    if (!oldPassword) {
+      return res.status(400).json({ message: 'Old password is required' })
+    }
+    await authService.requestChangePasswordOtp(req.user.id, oldPassword)
     res.json({ message: 'OTP sent to your email successfully' })
   } catch (error) {
     next(error)

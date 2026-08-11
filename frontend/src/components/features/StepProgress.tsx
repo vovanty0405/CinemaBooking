@@ -10,11 +10,11 @@ interface StepProgressProps {
 export const StepProgress: React.FC<StepProgressProps> = ({ steps, currentStep }) => {
   return (
     <div className="w-full">
-      <div className="flex items-center justify-between relative">
+      <div className="flex items-center justify-between relative z-0">
         {/* Progress Line */}
-        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-full h-1 bg-dark-input rounded-full -z-10" />
+        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-full h-1 bg-dark-input rounded-full z-0" />
         <div 
-          className="absolute left-0 top-1/2 -translate-y-1/2 h-1 bg-brand-red rounded-full -z-10 transition-all duration-500 ease-in-out" 
+          className="absolute left-0 top-1/2 -translate-y-1/2 h-1 bg-brand-red rounded-full z-0 transition-all duration-500 ease-in-out" 
           style={{ width: `${(currentStep / (steps.length - 1)) * 100}%` }}
         />
 
@@ -24,7 +24,7 @@ export const StepProgress: React.FC<StepProgressProps> = ({ steps, currentStep }
           const isCurrent = index === currentStep;
 
           return (
-            <div key={step} className="flex flex-col items-center gap-2">
+            <div key={step} className="flex flex-col items-center gap-2 relative z-10">
               <div 
                 className={cn(
                   "w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-colors duration-300",

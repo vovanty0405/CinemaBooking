@@ -8,6 +8,8 @@ import { HomePage } from './pages/HomePage';
 import { MoviesPage } from './pages/MoviesPage';
 import { MovieDetailPage } from './pages/MovieDetailPage';
 import { SearchPage } from './pages/SearchPage';
+import { EventDetailPage } from './pages/EventDetailPage';
+import { EventsPage } from './pages/EventsPage';
 import { SeatSelectionPage } from './pages/SeatSelectionPage';
 import { ComboSelectionPage } from './pages/ComboSelectionPage';
 import { PaymentPage } from './pages/PaymentPage';
@@ -28,6 +30,8 @@ import { AdminSeatsPage } from './pages/admin/AdminSeatsPage';
 import { AdminPromotionsPage } from './pages/admin/AdminPromotionsPage';
 import { AdminAccountsPage } from './pages/admin/AdminAccountsPage';
 import { AdminAnalyticsPage } from './pages/admin/AdminAnalyticsPage';
+import { AdminProfilePage } from './pages/admin/AdminProfilePage';
+import { AdminReviewsPage } from './pages/admin/AdminReviewsPage';
 
 const router = createBrowserRouter([
   {
@@ -37,6 +41,8 @@ const router = createBrowserRouter([
       { index: true, element: <HomePage /> },
       { path: 'movies', element: <MoviesPage /> },
       { path: 'movies/:id', element: <MovieDetailPage /> },
+      { path: 'events', element: <EventsPage /> },
+      { path: 'events/:slug', element: <EventDetailPage /> },
       { path: 'search', element: <SearchPage /> },
       {
         element: <ProtectedRoute />,
@@ -64,7 +70,9 @@ const router = createBrowserRouter([
       { path: 'seats', element: <AdminSeatsPage /> },
       { path: 'promotions', element: <AdminPromotionsPage /> },
       { path: 'accounts', element: <AdminAccountsPage /> },
+      { path: 'reviews', element: <AdminReviewsPage /> },
       { path: 'analytics', element: <AdminAnalyticsPage /> },
+      { path: 'profile', element: <AdminProfilePage /> },
     ],
   },
   { path: 'login', element: <LoginPage /> },

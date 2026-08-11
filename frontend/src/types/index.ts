@@ -10,11 +10,17 @@ export interface Movie {
   posterUrl: string
   backdropUrl?: string
   trailerUrl?: string
-  status?: 'coming_soon' | 'now_showing' | 'ended'
-  isFeatured?: boolean
-  avgRatingScore?: number
-  rating: 'P' | 'C13' | 'C16' | 'C18'
-  isActive: boolean
+  status?: 'coming_soon' | 'now_showing' | 'ended';
+  isFeatured?: boolean;
+  rating?: 'P' | 'C13' | 'C16' | 'C18';
+  isActive: boolean;
+  director?: string;
+  cast?: string[];
+  formats?: string[];
+  avgRatingScore?: number;
+  totalReviews?: number;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface Cinema {

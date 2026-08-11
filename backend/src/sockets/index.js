@@ -69,6 +69,16 @@ const initSocket = (httpServer) => {
       console.log(`${socket.id} left room: ${room}`)
     })
 
+    socket.on('join_movie_room', (movieId) => {
+      socket.join(`movie:${movieId}`)
+      console.log(`${socket.id} joined movie room: movie:${movieId}`)
+    })
+
+    socket.on('leave_movie_room', (movieId) => {
+      socket.leave(`movie:${movieId}`)
+      console.log(`${socket.id} left movie room: movie:${movieId}`)
+    })
+
     socket.on('disconnect', (reason) => {
       console.log(`Socket disconnected: ${socket.id} | reason: ${reason}`)
     })
@@ -83,7 +93,7 @@ const emitToShowtime = (showtimeId, event, data) => {
   io.to(`showtime_${showtimeId}`).emit(event, data)
 }
 // Gọi hàm này sau khi tạo booking thành công
-    const emitBookingCountdown = (userId, bookingId, expiresAt) => {
+const emitBookingCountdown = (userId, bookingId, expiresAt) => {
     if (!io) return
 
     const msLeft = new Date(expiresAt) - Date.now()
@@ -95,7 +105,13 @@ const emitToShowtime = (showtimeId, event, data) => {
         expiresAt,
         msLeft,
     })
-    }
+}
+
+const emitToMovie = (movieId, event, data) => {
+    if (!io) return
+    io.to(`movie:${movieId}`).emit(event, data)
+}
+
 const getIO = () => io
 
-module.exports = { initSocket, emitToShowtime, emitBookingCountdown ,getIO }
+module.exports = { initSocket, emitToShowtime, emitBookingCountdown, emitToMovie, getIO }

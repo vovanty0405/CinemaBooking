@@ -48,8 +48,17 @@ export const MovieCard: React.FC<MovieCardProps> = ({ movie, variant = 'compact'
         </h3>
         
         {variant === 'full' && (
-          <div className="mt-2 space-y-1">
-            <p className="text-xs text-text-secondary line-clamp-1">{movie.genre.join(', ')}</p>
+          <div className="mt-2 space-y-2">
+            <div className="flex flex-wrap gap-1.5">
+              {movie.genre.map((g, i) => (
+                <span 
+                  key={i} 
+                  className="px-2 py-0.5 text-[10px] font-semibold text-accent-teal border border-accent-teal/30 bg-accent-teal/10 rounded-full capitalize line-clamp-1"
+                >
+                  {g}
+                </span>
+              ))}
+            </div>
             <div className="flex items-center justify-between text-xs text-text-muted">
               <div className="flex items-center gap-1">
                 <Clock size={14} />

@@ -32,7 +32,14 @@ const movieSchema = new mongoose.Schema({
       default: 'coming_soon'
     },
     isFeatured: { type: Boolean, default: false },
+    director: { type: String, default: "Đang cập nhật" },
+    cast: [{ type: String }],
+    formats: [{
+      type: String,
+      enum: ["2D", "3D", "IMAX", "4DX"],
+    }],
     avgRatingScore: { type: Number, default: 0, min: 0, max: 5 },
+    totalReviews: { type: Number, default: 0 },
     rating: {
       type: String,
       enum: ['P', 'C13', 'C16', 'C18'],

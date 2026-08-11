@@ -7,6 +7,8 @@ import { format, addDays } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import { TrailerModal } from '../components/ui/TrailerModal';
 import { Button } from '../components/ui/Button';
+import { ReviewSection } from '../components/features/ReviewSection';
+import { Star } from 'lucide-react';
 
 export const MovieDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -95,8 +97,15 @@ export const MovieDetailPage: React.FC = () => {
             </h2>
             
             <div className="space-y-3 text-sm md:text-base text-text-secondary">
-              <p><span className="font-bold text-white w-28 inline-block">Đạo diễn:</span> Đang cập nhật</p>
-              <p><span className="font-bold text-white w-28 inline-block">Diễn viên:</span> Đang cập nhật</p>
+              <p className="flex items-center gap-2 mb-2">
+                <span className="font-bold text-white text-xl flex items-center gap-1">
+                  <Star size={20} fill="#F5A623" className="text-[#F5A623]" /> 
+                  {movie.avgRatingScore ? movie.avgRatingScore.toFixed(1) : 0}
+                </span>
+                <span className="text-text-muted">({movie.totalReviews || 0} đánh giá)</span>
+              </p>
+              <p><span className="font-bold text-white w-28 inline-block">Đạo diễn:</span> {movie.director || 'Đang cập nhật'}</p>
+              <p><span className="font-bold text-white w-28 inline-block">Diễn viên:</span> {movie.cast && movie.cast.length > 0 ? movie.cast.join(', ') : 'Đang cập nhật'}</p>
               <p><span className="font-bold text-white w-28 inline-block">Thể loại:</span> <span className="capitalize">{(movie.genre || []).join(', ')}</span></p>
               <p><span className="font-bold text-white w-28 inline-block">Khởi chiếu:</span> {movie.releaseDate ? format(new Date(movie.releaseDate), 'dd/MM/yyyy') : 'N/A'}</p>
               <p><span className="font-bold text-white w-28 inline-block">Thời lượng:</span> {movie.duration || 120} phút</p>
@@ -114,9 +123,17 @@ export const MovieDetailPage: React.FC = () => {
 
             {/* Format Badges */}
             <div className="flex flex-wrap gap-2 mt-6">
-              <span className="px-3 py-1 border border-text-muted text-xs font-bold text-text-secondary rounded uppercase">2D</span>
-              <span className="px-3 py-1 border border-[#00A8E1] text-xs font-bold text-[#00A8E1] rounded uppercase">IMAX</span>
-              <span className="px-3 py-1 border border-[#F5A623] text-xs font-bold text-[#F5A623] rounded uppercase">4DX</span>
+              {(movie.formats || ['2D']).map((format: string) => {
+                let borderClass = 'border-text-muted text-text-secondary';
+                if (format === 'IMAX') borderClass = 'border-[#3B82F6] text-[#3B82F6]';
+                else if (format === '4DX') borderClass = 'border-[#F97316] text-[#F97316]';
+                
+                return (
+                  <span key={format} className={`px-3 py-1 border text-xs font-bold rounded uppercase ${borderClass}`}>
+                    {format}
+                  </span>
+                );
+              })}
             </div>
 
             {/* Buy Ticket Button */}
@@ -231,6 +248,13 @@ export const MovieDetailPage: React.FC = () => {
             </div>
           )}
         </div>
+        
+        {/* Review Section */}
+        <ReviewSection 
+          movieId={movie._id} 
+          avgRatingScore={movie.avgRatingScore || 0}
+          totalReviews={movie.totalReviews || 0}
+        />
       </div>
       
       <TrailerModal 

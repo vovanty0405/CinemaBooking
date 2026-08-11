@@ -1,10 +1,10 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, Link, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../stores/authStore';
 import { 
   LayoutDashboard, Film, Clock, Armchair, 
   Clapperboard, DoorOpen, Ticket, Users, 
-  BarChart3, Search, Bell, Settings 
+  BarChart3, Search, Bell, Settings, MessageCircle 
 } from 'lucide-react';
 
 interface AdminLayoutProps {
@@ -12,7 +12,13 @@ interface AdminLayoutProps {
 }
 
 export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
-  const { user } = useAuthStore();
+  const { user, logout } = useAuthStore();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+  };
 
   const navItems = [
     { name: 'Dashboard', path: '/admin', end: true, icon: <LayoutDashboard size={20} /> },
@@ -23,6 +29,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
     { name: 'Room', path: '/admin/rooms', icon: <DoorOpen size={20} /> },
     { name: 'Promotion', path: '/admin/promotions', icon: <Ticket size={20} /> },
     { name: 'Account', path: '/admin/accounts', icon: <Users size={20} /> },
+    { name: 'Reviews', path: '/admin/reviews', icon: <MessageCircle size={20} /> },
     { name: 'Analytics', path: '/admin/analytics', icon: <BarChart3 size={20} /> },
   ];
 
@@ -75,8 +82,19 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
           <button className="text-text-muted hover:text-brand-red transition-colors">
             <Settings size={20} />
           </button>
-          <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-dark-input flex items-center justify-center bg-dark-surface">
-            <span className="text-brand-red font-bold text-lg">{user?.name?.charAt(0).toUpperCase()}</span>
+          <div className="relative group">
+            <button className="w-10 h-10 rounded-full overflow-hidden border-2 border-dark-input flex items-center justify-center bg-dark-surface hover:scale-105 transition-transform">
+              <span className="text-brand-red font-bold text-lg">{user?.name?.charAt(0).toUpperCase()}</span>
+            </button>
+            <div className="absolute right-0 top-full mt-2 w-48 bg-dark-surface border border-dark-input rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 py-2 z-50">
+              <div className="px-4 py-2 border-b border-[#2B2B2B] mb-1">
+                <p className="text-sm font-semibold text-white truncate">{user?.name}</p>
+                <p className="text-xs text-text-muted truncate">{user?.email}</p>
+              </div>
+              <Link to="/admin/profile" className="block px-4 py-2 text-sm text-text-primary hover:bg-dark-input hover:text-white">Trang cá nhân</Link>
+              <Link to="/" className="block px-4 py-2 text-sm text-text-primary hover:bg-dark-input hover:text-white">Trang chủ Movies</Link>
+              <button onClick={handleLogout} className="block w-full text-left px-4 py-2 text-sm text-brand-red hover:bg-dark-input mt-1">Đăng xuất</button>
+            </div>
           </div>
         </div>
       </header>

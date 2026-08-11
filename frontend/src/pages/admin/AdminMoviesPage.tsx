@@ -33,6 +33,7 @@ const GENRE_OPTIONS = [
 ] as const;
 
 const RATING_OPTIONS: Movie['rating'][] = ['P', 'C13', 'C16', 'C18'];
+const FORMAT_OPTIONS = ['2D', '3D', 'IMAX', '4DX'] as const;
 
 interface MovieFormData {
   title: string;
@@ -48,6 +49,9 @@ interface MovieFormData {
   rating: Movie['rating'];
   status: 'coming_soon' | 'now_showing' | 'ended';
   isFeatured: boolean;
+  director: string;
+  cast: string;
+  formats: string[];
 }
 
 const EMPTY_FORM: MovieFormData = {
@@ -64,6 +68,9 @@ const EMPTY_FORM: MovieFormData = {
   rating: 'P',
   status: 'coming_soon',
   isFeatured: false,
+  director: '',
+  cast: '',
+  formats: ['2D'],
 };
 
 // ────────────────────────────── component ──────────────────────────────
@@ -212,6 +219,9 @@ export const AdminMoviesPage: React.FC = () => {
       rating: movie.rating || 'P',
       status: movie.status || 'coming_soon',
       isFeatured: movie.isFeatured || false,
+      director: movie.director || '',
+      cast: movie.cast ? movie.cast.join(', ') : '',
+      formats: movie.formats || ['2D'],
     });
     setIsModalOpen(true);
   }, []);
@@ -240,6 +250,15 @@ export const AdminMoviesPage: React.FC = () => {
     }));
   };
 
+  const toggleFormat = (format: string) => {
+    setForm((prev) => ({
+      ...prev,
+      formats: prev.formats.includes(format)
+        ? prev.formats.filter((f) => f !== format)
+        : [...prev.formats, format],
+    }));
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -257,6 +276,9 @@ export const AdminMoviesPage: React.FC = () => {
       rating: form.rating,
       status: form.status,
       isFeatured: form.isFeatured,
+      director: form.director,
+      cast: form.cast.split(',').map(c => c.trim()).filter(Boolean),
+      formats: form.formats,
     };
 
     if (editingMovie) {
@@ -518,10 +540,10 @@ export const AdminMoviesPage: React.FC = () => {
                       <td className="px-4 py-3">
                         <span
                           className={`px-2 py-1 rounded text-xs font-medium border ${ratingColor(
-                            movie.rating,
+                            movie.rating || 'P',
                           )}`}
                         >
-                          {movie.rating}
+                          {movie.rating || 'P'}
                         </span>
                       </td>
                       <td className="px-4 py-3">
@@ -600,6 +622,17 @@ export const AdminMoviesPage: React.FC = () => {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
+                  <label className="block text-sm font-medium text-text-muted mb-1.5">Đạo diễn</label>
+                  <input type="text" name="director" value={form.director} onChange={handleFormChange} placeholder="Christopher Nolan" className="w-full px-4 py-2.5 bg-[#2B2B2B] text-white rounded-lg border border-[#2B2B2B] focus:ring-2 focus:ring-brand-red outline-none text-sm placeholder-text-muted" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-text-muted mb-1.5">Diễn viên (cách nhau bởi dấu phẩy)</label>
+                  <input type="text" name="cast" value={form.cast} onChange={handleFormChange} placeholder="Steve Carell, Kristen Wiig" className="w-full px-4 py-2.5 bg-[#2B2B2B] text-white rounded-lg border border-[#2B2B2B] focus:ring-2 focus:ring-brand-red outline-none text-sm placeholder-text-muted" />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
                   <label className="block text-sm font-medium text-text-muted mb-1.5">Thời lượng (phút) <span className="text-brand-red">*</span></label>
                   <input type="number" name="duration" required min={1} value={form.duration} onChange={handleFormChange} placeholder="120" className="w-full px-4 py-2.5 bg-[#2B2B2B] text-white rounded-lg border border-[#2B2B2B] focus:ring-2 focus:ring-brand-red outline-none text-sm placeholder-text-muted" />
                 </div>
@@ -647,6 +680,21 @@ export const AdminMoviesPage: React.FC = () => {
                         {form.genre.includes(genre) && (<svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>)}
                       </span>
                       <span className="capitalize">{genre}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-text-muted mb-2">Định dạng chiếu</label>
+                <div className="grid grid-cols-4 gap-2">
+                  {FORMAT_OPTIONS.map((format) => (
+                    <label key={format} className={`flex items-center gap-2 px-2 py-2 rounded-lg border cursor-pointer transition-colors text-xs select-none ${form.formats.includes(format) ? 'bg-brand-red/15 border-brand-red/40 text-white' : 'bg-[#2B2B2B] border-[#2B2B2B] text-text-muted hover:border-[#3B3B3B]'}`}>
+                      <input type="checkbox" checked={form.formats.includes(format)} onChange={() => toggleFormat(format)} className="sr-only" />
+                      <span className={`w-3.5 h-3.5 rounded border flex items-center justify-center flex-shrink-0 ${form.formats.includes(format) ? 'bg-brand-red border-brand-red' : 'border-[#555] bg-transparent'}`}>
+                        {form.formats.includes(format) && (<svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>)}
+                      </span>
+                      <span className="font-semibold">{format}</span>
                     </label>
                   ))}
                 </div>

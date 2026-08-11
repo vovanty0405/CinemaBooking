@@ -10,5 +10,6 @@ export const authApi = {
   forgotPassword: (data: any) => axiosInstance.post('/auth/forgot-password', data),
   resetPassword: (data: any) => axiosInstance.post('/auth/reset-password', data),
   changePassword: (data: any) => axiosInstance.post('/auth/change-password', data),
+  requestChangePasswordOtp: (data: { oldPassword: string }) => axiosInstance.post('/auth/change-password/otp', data),
   updateProfile: (data: { name: string; phone?: string }) => axiosInstance.patch('/auth/profile', data),
 };

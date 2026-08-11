@@ -6,9 +6,10 @@ import { useToastStore } from '../../stores/toastStore';
 import { Modal } from '../../components/ui/Modal';
 import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
+import { AdminEventsTab } from '../../components/admin/AdminEventsTab';
 
 export const AdminPromotionsPage: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'coupon' | 'combo'>('coupon');
+  const [activeTab, setActiveTab] = useState<'coupon' | 'combo' | 'event'>('coupon');
   const { addToast } = useToastStore();
   const queryClient = useQueryClient();
 
@@ -165,6 +166,12 @@ export const AdminPromotionsPage: React.FC = () => {
             className={`flex-1 lg:flex-none px-6 py-2 rounded-md text-sm font-semibold transition-all ${activeTab === 'combo' ? 'bg-[#2B2B2B] text-white shadow-sm' : 'text-text-muted hover:text-white'}`}
           >
             Combo bắp nước
+          </button>
+          <button 
+            onClick={() => setActiveTab('event')}
+            className={`flex-1 lg:flex-none px-6 py-2 rounded-md text-sm font-semibold transition-all ${activeTab === 'event' ? 'bg-[#2B2B2B] text-white shadow-sm' : 'text-text-muted hover:text-white'}`}
+          >
+            Sự kiện (Event)
           </button>
         </div>
       </div>
@@ -332,6 +339,9 @@ export const AdminPromotionsPage: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Events Tab Content */}
+      {activeTab === 'event' && <AdminEventsTab />}
 
       {/* Add Coupon Modal */}
       <Modal isOpen={isCouponModalOpen} onClose={closeCouponModal} title="Thêm Coupon khuyến mãi mới" size="md">

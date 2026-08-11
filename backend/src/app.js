@@ -19,6 +19,8 @@ const seatRoutes = require('./routes/seatRoutes')
 const promotionRoutes = require('./routes/promotionRoutes')
 const analyticsRoutes = require('./routes/analyticsRoute')
 const uploadRoutes = require('./routes/uploadRoute')
+const reviewRoutes = require('./routes/reviewRoute')
+const eventRoutes = require('./routes/eventRoute')
 const path = require('path')
 
 
@@ -52,6 +54,8 @@ app.use('/api/seats', seatRoutes)
 app.use('/api/promotions', promotionRoutes)
 app.use('/api/analytics', analyticsRoutes)
 app.use('/api/upload', uploadRoutes)
+app.use('/api/reviews', reviewRoutes)
+app.use('/api/events', eventRoutes)
 app.use('/uploads', express.static(path.join(__dirname, '../public/uploads')))
 
 

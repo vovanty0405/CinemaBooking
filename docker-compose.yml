@@ -1,0 +1,75 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:7
+    container_name: cinema_mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: cinema_booking
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - cinema_network
+
+  redis:
+    image: redis:7-alpine
+    container_name: cinema_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - cinema_network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: cinema_backend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      MONGODB_URI: mongodb://mongodb:27017/cinema_booking
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      USE_REDIS: 'true'
+      JWT_SECRET: ${JWT_SECRET:-supersecretkey123}
+      CLIENT_URL: ${CLIENT_URL:-http://localhost}
+    volumes:
+      - backend_uploads:/app/public/uploads
+      - backend_logs:/app/logs
+    depends_on:
+      - mongodb
+      - redis
+    networks:
+      - cinema_network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: cinema_frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - cinema_network
+
+volumes:
+  mongo_data:
+  redis_data:
+  backend_uploads:
+  backend_logs:
+
+networks:
+  cinema_network:
+    driver: bridge

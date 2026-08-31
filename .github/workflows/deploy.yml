@@ -71,6 +71,12 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - name: Prepare Dockerhub Username Lowercase
+        id: prep
+        run: |
+          USER_LOWER=$(echo "${{ secrets.DOCKERHUB_USERNAME }}" | tr '[:upper:]' '[:lower:]')
+          echo "username=$USER_LOWER" >> $GITHUB_OUTPUT
+
       # Build & Push Backend Image
       - name: Build & Push Backend Image
         uses: docker/build-push-action@v5
@@ -78,7 +84,7 @@ jobs:
           context: ./backend
           file: ./backend/Dockerfile
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/cinema-backend:latest
+          tags: ${{ steps.prep.outputs.username }}/cinema-backend:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -89,7 +95,7 @@ jobs:
           context: ./frontend
           file: ./frontend/Dockerfile
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/cinema-frontend:latest
+          tags: ${{ steps.prep.outputs.username }}/cinema-frontend:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
